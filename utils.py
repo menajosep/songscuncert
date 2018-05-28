@@ -7,22 +7,25 @@ from more_itertools import chunked
 from typing import List, Callable, Union, Any
 from math import ceil
 from itertools import chain
+import logging
 
 
 def read_data(filename):
     """Extract the first file enclosed in a zip file as a list of words"""
     songs_and_tracks = np.load(filename)
-    return songs_and_tracks
+    logging.debug(f'loaded {len(songs_and_tracks)} playists')
+    return songs_and_tracks[:10000]
 
 
 def flattenlist(listoflists):
     return list(chain.from_iterable(listoflists))
 
 
-def process_play_list_constructor(neg_samples:int, dictionary:list):
+def process_play_list_constructor(neg_samples:int, dictionary:dict):
     """Generate a function that will clean and tokenize text."""
     def process_play_list(play_lists):
         samples = []
+        dictionary_keys = list(dictionary.keys())
         try:
             for play_list in play_lists:
                 for song in play_list[1]:
@@ -30,10 +33,10 @@ def process_play_list_constructor(neg_samples:int, dictionary:list):
                         song = 'UNK'
                     samples.append((int(play_list[0]), dictionary[song], 1))
                     for i in range(neg_samples):
-                        random_neg_sample = random.randint(0, len(dictionary) - 2)
-                        samples.append((int(play_list[0]), dictionary[str(random_neg_sample)], 0))
+                        random_neg_sample = random.randint(0, len(dictionary) - 1)
+                        samples.append((int(play_list[0]), dictionary[dictionary_keys[random_neg_sample]], 0))
         except Exception as e:
-            print('error')
+            logging.error(f'error {e}')
         return samples
 
     return process_play_list
