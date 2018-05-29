@@ -37,9 +37,9 @@ def process_play_list_constructor(neg_samples:int, dictionary:dict, context_size
                     if song not in dictionary:
                         song = 'UNK'
                     samples.append((int(play_list[0]), dictionary[song], 1))
-                    for i in range(neg_samples):
-                        random_neg_sample = random.randint(0, len(dictionary) - 1)
-                        samples.append((int(play_list[0]), dictionary[dictionary_keys[random_neg_sample]], 0))
+                for i in range(neg_samples):
+                    random_neg_sample = random.randint(0, len(dictionary) - 1)
+                    samples.append((int(play_list[0]), dictionary[dictionary_keys[random_neg_sample]], 0))
         except Exception as e:
             logging.getLogger('logging_songscuncert').error(f'error {e}')
         return samples
