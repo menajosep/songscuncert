@@ -6,7 +6,7 @@ import logging
 
 
 class bayessian_bern_emb_data():
-    def __init__(self, input_file, ns, n_minibatch, L, K, dir_name):
+    def __init__(self, input_file, ns, n_minibatch, L, K, cs, dir_name):
         logging.debug(f'initializing bayessian_bern_emb_data with file {input_file}')
         logging.debug(f'neg sampling {ns} ')
         logging.debug(f'n_minibatch {n_minibatch} ')
@@ -17,6 +17,7 @@ class bayessian_bern_emb_data():
         self.n_minibatch = n_minibatch
         self.L = L
         self.K = K
+        self.cs = cs
         self.dir_name = dir_name
         logging.debug(f'....reading data')
         songs_and_tracks = read_data(input_file)
@@ -27,7 +28,7 @@ class bayessian_bern_emb_data():
 
     def parallel_process_text(self, data: List[str]) -> List[List[str]]:
         """Apply cleaner -> tokenizer."""
-        process_text = process_play_list_constructor(self.ns, self.dictionary)
+        process_text = process_play_list_constructor(self.ns, self.dictionary, self.cs)
         return flattenlist(apply_parallel(process_text, data))
 
     def build_dataset(self, songs_and_tracks):

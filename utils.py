@@ -8,27 +8,32 @@ from typing import List, Callable, Union, Any
 from math import ceil
 from itertools import chain
 import logging
+from random import shuffle
+
+CONTEXT_SIZE = 10
 
 
 def read_data(filename):
     """Extract the first file enclosed in a zip file as a list of words"""
     songs_and_tracks = np.load(filename)
     logging.debug(f'loaded {len(songs_and_tracks)} playists')
-    return songs_and_tracks[:10000]
+    return songs_and_tracks[:1000]
 
 
 def flattenlist(listoflists):
     return list(chain.from_iterable(listoflists))
 
 
-def process_play_list_constructor(neg_samples:int, dictionary:dict):
+def process_play_list_constructor(neg_samples:int, dictionary:dict, context_size:int):
     """Generate a function that will clean and tokenize text."""
     def process_play_list(play_lists):
         samples = []
         dictionary_keys = list(dictionary.keys())
         try:
             for play_list in play_lists:
-                for song in play_list[1]:
+                songs = play_list[1]
+                shuffle(songs)
+                for song in songs[:context_size]:
                     if song not in dictionary:
                         song = 'UNK'
                     samples.append((int(play_list[0]), dictionary[song], 1))

@@ -13,6 +13,9 @@ def parse_args():
         parser.add_argument('--n_iter', type=int, default = 100,
                             help='Number iterations. Default is 500.')
 
+        parser.add_argument('--cs', type=int, default=50,
+                            help='Size of the context. Default is 50.')
+
         parser.add_argument('--n_epochs', type=int, default=10,
                             help='Number of epochs. Default is 10.')
 

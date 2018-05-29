@@ -16,7 +16,7 @@ os.makedirs(dir_name)
 sess = ed.get_session()
 
 # DATA
-d = bayessian_bern_emb_data(args.in_file, args.ns, args.mb, args.L, args.K, dir_name)
+d = bayessian_bern_emb_data(args.in_file, args.ns, args.mb, args.L, args.K, args.cs, dir_name)
 pickle.dump(d, open(dir_name + "/data.dat", "wb+"))
 
 # MODEL
