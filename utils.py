@@ -16,7 +16,7 @@ CONTEXT_SIZE = 10
 def read_data(filename):
     """Extract the first file enclosed in a zip file as a list of words"""
     songs_and_tracks = np.load(filename)
-    logging.debug(f'loaded {len(songs_and_tracks)} playists')
+    logging.getLogger('logging_songscuncert').debug(f'loaded {len(songs_and_tracks)} playists')
     return songs_and_tracks[:1000]
 
 
@@ -41,7 +41,7 @@ def process_play_list_constructor(neg_samples:int, dictionary:dict, context_size
                         random_neg_sample = random.randint(0, len(dictionary) - 1)
                         samples.append((int(play_list[0]), dictionary[dictionary_keys[random_neg_sample]], 0))
         except Exception as e:
-            logging.error(f'error {e}')
+            logging.getLogger('logging_songscuncert').error(f'error {e}')
         return samples
 
     return process_play_list
@@ -76,4 +76,27 @@ def variable_summaries(summary_name, var):
         tf.summary.scalar('stddev', stddev)
         tf.summary.scalar('max', tf.reduce_max(var))
         tf.summary.scalar('min', tf.reduce_min(var))
+
+
+def get_logger():
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    # create logger
+    logger = logging.getLogger("logging_songscuncert")
+    logger.setLevel(logging.DEBUG)
+
+    # create console handler and set level to debug
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+
+    # create formatter
+    formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(message)s")
+
+    # add formatter to ch
+    ch.setFormatter(formatter)
+
+    # add ch to logger
+    logger.addHandler(ch)
+    return logger
 

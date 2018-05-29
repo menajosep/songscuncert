@@ -8,15 +8,14 @@ from data import *
 from models import *
 from args import *
 
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger = get_logger()
 
 args, dir_name = parse_args()
 os.makedirs(dir_name)
 sess = ed.get_session()
 
 # DATA
-d = bayessian_bern_emb_data(args.in_file, args.ns, args.mb, args.L, args.K, args.cs, dir_name)
+d = bayessian_bern_emb_data(args.in_file, args.ns, args.mb, args.L, args.K, args.cs, dir_name, logger)
 pickle.dump(d, open(dir_name + "/data.dat", "wb+"))
 
 # MODEL
