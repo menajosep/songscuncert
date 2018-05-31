@@ -80,10 +80,10 @@ class bayesian_emb_model():
 
         alpha = config.embeddings.add()
         alpha.tensor_name = 'qU/loc'
-        alpha.metadata_path = '../vocab.tsv'
+        alpha.metadata_path = '../vocab_alpha.tsv'
         rho = config.embeddings.add()
         rho.tensor_name = 'qV/loc'
-        rho.metadata_path = '../vocab.tsv'
+        rho.metadata_path = '../vocab_rho.tsv'
         projector.visualize_embeddings(self.train_writer, config)
 
     def dump(self, fname, data):
