@@ -33,7 +33,7 @@ def get_n_iters():
 
 # TRAINING
 n_iters, n_batches = get_n_iters()
-logging.debug(f'init training number of iters {n_iters} and batches {n_batches}')
+logger.debug(f'init training number of iters {n_iters} and batches {n_batches}')
 
 m.inference.initialize(n_samples=1, n_iter=n_iters, logdir=m.logdir,
                        scale={m.y_pos: n_batches, m.y_neg: n_batches / args.ns},
@@ -42,7 +42,7 @@ m.inference.initialize(n_samples=1, n_iter=n_iters, logdir=m.logdir,
                        )
 init = tf.global_variables_initializer()
 sess.run(init)
-logging.debug(f'....starting training')
+logger.debug(f'....starting training')
 for i in range(m.inference.n_iter):
     info_dict = m.inference.update(feed_dict=d.feed(m.target_placeholder,
                                                     m.context_placeholder,
@@ -54,7 +54,7 @@ for i in range(m.inference.n_iter):
     if i % n_batches == 0:
         m.saver.save(sess, os.path.join(m.logdir, "model.ckpt"), i)
 m.saver.save(sess, os.path.join(m.logdir, "model.ckpt"), i)
-logging.debug(f'training finished. Results are saved in ' + dir_name)
+logger.debug(f'training finished. Results are saved in ' + dir_name)
 m.dump(dir_name + "/variational.dat", d)
 
-logging.debug(f'Done')
+logger.debug(f'Done')
