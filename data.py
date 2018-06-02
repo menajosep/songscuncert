@@ -7,16 +7,14 @@ import collections
 
 
 class bayessian_bern_emb_data():
-    def __init__(self, input_file, emb_file, ns, n_minibatch, K, cs, dir_name, logger):
+    def __init__(self, input_file, emb_file, ns, K, cs, dir_name, logger):
         self.logger = logger
         self.logger.debug('initializing bayessian_bern_emb_data with file '+input_file)
         self.logger.debug('neg sampling '+str(ns))
-        self.logger.debug('n_minibatch '+str(n_minibatch))
         self.logger.debug('context size of '+str(cs))
         self.logger.debug('dimesion of embeddings '+str(K))
         self.logger.debug('working dir '+dir_name)
         self.ns = ns
-        self.n_minibatch = n_minibatch
         self.K = K
         self.cs = cs
         self.dir_name = dir_name

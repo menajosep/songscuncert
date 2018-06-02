@@ -15,7 +15,7 @@ os.makedirs(dir_name)
 sess = ed.get_session()
 
 # DATA
-d = bayessian_bern_emb_data(args.in_file, args.emb_file, args.ns, args.mb, args.K, args.cs, dir_name, logger)
+d = bayessian_bern_emb_data(args.in_file, args.emb_file, args.ns, args.K, args.cs, dir_name, logger)
 pickle.dump(d, open(dir_name + "/data.dat", "wb+"))
 
 # MODEL
@@ -25,7 +25,7 @@ m = bayesian_emb_model(d, sess, dir_name)
 
 
 def get_n_iters():
-    n_batches = len(d.playlists) / d.n_minibatch
+    n_batches = len(d.playlists) / args.mb
     if len(d.playlists) % d.n_minibatch > 0:
         n_batches += 1
     return int(n_batches) * args.n_epochs, int(n_batches)
