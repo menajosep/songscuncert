@@ -16,7 +16,7 @@ CONTEXT_SIZE = 10
 def read_data(filename):
     """Extract the first file enclosed in a zip file as a list of words"""
     songs_and_tracks = np.load(filename)
-    logging.getLogger('logging_songscuncert').debug(f'loaded {len(songs_and_tracks)} playists')
+    logging.getLogger('logging_songscuncert').debug('number of loaded playists:'+str(len(songs_and_tracks)))
     return songs_and_tracks
 
 
@@ -41,7 +41,7 @@ def process_play_list_constructor(neg_samples:int, dictionary:dict, context_size
                     random_neg_sample = random.randint(0, len(dictionary) - 1)
                     samples.append((int(play_list[0]), dictionary[dictionary_keys[random_neg_sample]], 0))
         except Exception as e:
-            logging.getLogger('logging_songscuncert').error(f'error {e}')
+            logging.getLogger('logging_songscuncert').error('error '+e)
         return samples
 
     return process_play_list
