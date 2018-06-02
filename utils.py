@@ -38,7 +38,8 @@ def process_play_list_constructor(neg_samples:int, dictionary:dict, context_size
                         for song2 in songs2[:context_size]:
                             if song2 not in dictionary:
                                 song2 = 'UNK'
-                            samples.append((dictionary[song], dictionary[song2], 1))
+                            if song != song2:
+                                samples.append((dictionary[song], dictionary[song2], 1))
 
                         for i in range(neg_samples):
                             random_neg_sample = random.randint(0, len(dictionary) - 1)
