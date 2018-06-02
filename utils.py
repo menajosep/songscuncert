@@ -10,8 +10,6 @@ from itertools import chain
 import logging
 from random import shuffle
 
-CONTEXT_SIZE = 10
-
 
 def read_data(filename):
     """Extract the first file enclosed in a zip file as a list of words"""
@@ -20,7 +18,7 @@ def read_data(filename):
     return songs_and_tracks
 
 
-def flattenlist(listoflists):
+def flatten_list(listoflists):
     return list(chain.from_iterable(listoflists))
 
 
@@ -66,6 +64,7 @@ def apply_parallel(func: Callable,
         pool.close()
         pool.join()
         return transformed_data
+
 
 def variable_summaries(summary_name, var):
     with tf.name_scope(summary_name):

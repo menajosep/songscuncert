@@ -29,7 +29,7 @@ class bayessian_bern_emb_data():
     def parallel_process_text(self, data: List[str]) -> List[List[str]]:
         """Apply cleaner -> tokenizer."""
         process_text = process_play_list_constructor(self.ns, self.dictionary, self.cs)
-        return flattenlist(apply_parallel(process_text, data))
+        return flatten_list(apply_parallel(process_text, data))
 
     def build_dataset(self, songs_and_tracks):
         raw_playlists, raw_songs = zip(*songs_and_tracks)
@@ -38,7 +38,7 @@ class bayessian_bern_emb_data():
         self.L_target = len(count_playlists.keys())
         self.logger.debug('number of unique playlists '+str(self.L_target))
         self.logger.debug('....counting unique songs')
-        raw_songs = flattenlist(raw_songs)
+        raw_songs = flatten_list(raw_songs)
         count_songs = [['UNK', -1]]
         count_songs.extend(collections.Counter(raw_songs).most_common(self.L - 1))
         self.logger.debug('....building songs dictionary')
