@@ -31,7 +31,7 @@ def process_play_list_constructor(neg_samples:int, dictionary:dict, context_size
             for play_list in play_lists:
                 songs = play_list[1]
                 shuffle(songs)
-                for song in songs:
+                for song in songs[:context_size]:
                     if song in dictionary:
                         songs2 = songs.copy()
                         shuffle(songs2)
