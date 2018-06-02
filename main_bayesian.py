@@ -21,7 +21,7 @@ pickle.dump(d, open(dir_name + "/data.dat", "wb+"))
 # MODEL
 d = pickle.load(open(dir_name + "/data.dat", "rb+"))
 d.batch = d.batch_generator()
-m = bayesian_emb_model(d, sess, dir_name)
+m = bayesian_emb_model(d, args.mb, sess, dir_name)
 
 
 def get_n_iters():

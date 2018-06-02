@@ -8,7 +8,7 @@ from utils import *
 
 
 class bayesian_emb_model():
-    def __init__(self, d, sess, logdir):
+    def __init__(self, d, n_minibatch, sess, logdir):
         self.K = d.K
         self.sess = sess
         self.logdir = logdir
@@ -18,7 +18,7 @@ class bayesian_emb_model():
             with tf.name_scope('input'):
                 self.target_placeholder = tf.placeholder(tf.int32)
                 self.context_placeholder = tf.placeholder(tf.int32)
-                self.labels_placeholder = tf.placeholder(tf.int32, shape=[d.n_minibatch])
+                self.labels_placeholder = tf.placeholder(tf.int32, shape=[n_minibatch])
                 self.ones_placeholder = tf.placeholder(tf.int32)
                 self.zeros_placeholder = tf.placeholder(tf.int32)
 
