@@ -1,3 +1,5 @@
+from gensim.models import Word2Vec
+
 from utils import *
 from random import shuffle
 import collections
@@ -5,20 +7,21 @@ import collections
 
 
 class bayessian_bern_emb_data():
-    def __init__(self, input_file, ns, n_minibatch, L, K, cs, dir_name, logger):
+    def __init__(self, input_file, emb_file, ns, n_minibatch, K, cs, dir_name, logger):
         self.logger = logger
         self.logger.debug('initializing bayessian_bern_emb_data with file '+input_file)
         self.logger.debug('neg sampling '+str(ns))
         self.logger.debug('n_minibatch '+str(n_minibatch))
-        self.logger.debug('songs dictionary size of '+str(L))
+        self.logger.debug('context size of '+str(cs))
         self.logger.debug('dimesion of embeddings '+str(K))
         self.logger.debug('working dir '+dir_name)
         self.ns = ns
         self.n_minibatch = n_minibatch
-        self.L = L
         self.K = K
         self.cs = cs
         self.dir_name = dir_name
+        self.logger.debug('....loading embeddings file')
+        self.load_embeddings(emb_file)
         self.logger.debug('....reading data')
         songs_and_tracks = read_data(input_file)
         self.logger.debug('....building corpus')
@@ -37,17 +40,7 @@ class bayessian_bern_emb_data():
         count_playlists = collections.Counter(raw_playlists)
         self.L_target = len(count_playlists.keys())
         self.logger.debug('number of unique playlists '+str(self.L_target))
-        self.logger.debug('....counting unique songs')
-        raw_songs = flatten_list(raw_songs)
-        count_songs = [['UNK', -1]]
-        count_songs.extend(collections.Counter(raw_songs).most_common(self.L - 1))
-        self.logger.debug('....building songs dictionary')
-        self.dictionary = dict()
-        self.counter = dict()
-        for song, _ in count_songs:
-            self.dictionary[song] = len(self.dictionary)
-        self.L_context = self.L
-        self.logger.debug('size of songs dictionary '+str(self.L_context))
+
         self.logger.debug('....building samples')
         self.samples = self.parallel_process_text(songs_and_tracks)
         self.logger.debug('number of samples '+str(len(self.samples)))
@@ -99,3 +92,17 @@ class bayessian_bern_emb_data():
         # Remove the unpicklable entries.
         del state['logger']
         return state
+
+    def load_embeddings(self, emb_file):
+        w2v_model = Word2Vec.load(emb_file)
+        self.logger.debug('....building songs dictionary')
+        vocabulary = w2v_model.wv.vocab
+        self.dictionary = {'UNK': 0}
+        for song in vocabulary:
+            self.dictionary[song] = vocabulary[song].index + 1
+        self.L_context = len(self.dictionary)
+        self.logger.debug('size of songs dictionary ' + str(self.L_context))
+        self.logger.debug('....loading embeddings matrix')
+        self.pretreained_embeddings = np.zeros((1, self.K), dtype=np.float32).tolist()
+        self.pretreained_embeddings.extend(w2v_model.wv.vectors)
+        self.logger.debug('....embeddings matrix loaded')

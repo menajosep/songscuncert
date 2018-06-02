@@ -22,3 +22,4 @@ tensorboard==1.6.0
 tensorflow-gpu==1.6.0
 termcolor==1.1.0
 Werkzeug==0.14.1
+gensim==3.4.0

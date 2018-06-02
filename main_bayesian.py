@@ -15,13 +15,13 @@ os.makedirs(dir_name)
 sess = ed.get_session()
 
 # DATA
-d = bayessian_bern_emb_data(args.in_file, args.ns, args.mb, args.L, args.K, args.cs, dir_name, logger)
+d = bayessian_bern_emb_data(args.in_file, args.emb_file, args.ns, args.mb, args.K, args.cs, dir_name, logger)
 pickle.dump(d, open(dir_name + "/data.dat", "wb+"))
 
 # MODEL
 d = pickle.load(open(dir_name + "/data.dat", "rb+"))
 d.batch = d.batch_generator()
-m = bayesian_emb_model(d, d.K, sess, dir_name)
+m = bayesian_emb_model(d, sess, dir_name)
 
 
 def get_n_iters():
