@@ -12,7 +12,11 @@ logger = get_logger()
 
 args, dir_name = parse_args()
 os.makedirs(dir_name)
-sess = ed.get_session()
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+#sess = ed.get_session()
+session = tf.Session(config=config)
+
 
 # DATA
 d = bayessian_bern_emb_data(args.in_file, args.emb_file, args.ns, args.K, args.cs, dir_name, logger)
