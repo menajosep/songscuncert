@@ -20,7 +20,7 @@ pickle.dump(d, open(dir_name + "/data.dat", "wb+"))
 
 # MODEL
 d = pickle.load(open(dir_name + "/data.dat", "rb+"))
-d.batch = d.batch_generator()
+d.batch = d.batch_generator(args.mb)
 m = bayesian_emb_model(d, args.mb, sess, dir_name)
 
 
@@ -44,7 +44,7 @@ init = tf.global_variables_initializer()
 sess.run(init)
 logger.debug('....starting training')
 for i in range(m.inference.n_iter):
-    info_dict = m.inference.update(feed_dict=d.feed(m.target_placeholder,
+    info_dict = m.inference.update(feed_dict=d.feed(args.mb, m.target_placeholder,
                                                     m.context_placeholder,
                                                     m.labels_placeholder,
                                                     m.ones_placeholder,
