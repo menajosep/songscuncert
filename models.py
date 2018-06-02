@@ -61,10 +61,10 @@ class bayesian_emb_model():
         self.sigV = tf.nn.softplus(
             tf.matmul(tf.get_variable("sigV", shape=(d.L_context, 1), initializer=tf.ones_initializer()), tf.ones([1, self.K])),
             name="sigmasV")
-        self.locU = tf.get_variable("qU/loc", [d.L_target, self.K], initializer=tf.zeros_initializer())
+        #self.locU = tf.get_variable("qU/loc", [d.L_target, self.K], initializer=tf.zeros_initializer())
         #self.locV = tf.get_variable("qV/loc", [d.L_context, self.K], initializer=tf.zeros_initializer())
 
-        self.qU = Normal(loc=self.locU, scale=self.sigU)
+        self.qU = Normal(loc=d.pretreained_embeddings, scale=self.sigU)
         self.qV = Normal(loc=d.pretreained_embeddings, scale=self.sigV)
 
         self.inference = ed.KLqp({self.U: self.qU, self.V: self.qV},

@@ -33,12 +33,6 @@ class bayessian_bern_emb_data():
         return flatten_list(apply_parallel(process_text, data))
 
     def build_dataset(self, songs_and_tracks):
-        raw_playlists, raw_songs = zip(*songs_and_tracks)
-        self.logger.debug('....counting unique playlists')
-        count_playlists = collections.Counter(raw_playlists)
-        self.L_target = len(count_playlists.keys())
-        self.logger.debug('number of unique playlists '+str(self.L_target))
-
         self.logger.debug('....building samples')
         self.samples = self.parallel_process_text(songs_and_tracks)
         self.logger.debug('number of samples '+str(len(self.samples)))
@@ -99,6 +93,7 @@ class bayessian_bern_emb_data():
         for song in vocabulary:
             self.dictionary[song] = vocabulary[song].index + 1
         self.L_context = len(self.dictionary)
+        self.L_target = self.L_context
         self.logger.debug('size of songs dictionary ' + str(self.L_context))
         self.logger.debug('....loading embeddings matrix')
         self.pretreained_embeddings = np.zeros((1, self.K), dtype=np.float32).tolist()
