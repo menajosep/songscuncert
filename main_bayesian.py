@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from tensorflow.python.training.adam import AdamOptimizer
+from tensorflow.python.training.gradient_descent import GradientDescentOptimizer
 
 from data import *
 from models import *
@@ -12,11 +12,7 @@ logger = get_logger()
 
 args, dir_name = parse_args()
 os.makedirs(dir_name)
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
-#sess = ed.get_session()
-session = tf.Session(config=config)
-
+sess = ed.get_session()
 
 # DATA
 d = bayessian_bern_emb_data(args.in_file, args.emb_file, args.ns, args.K, args.cs, dir_name, logger)
@@ -42,7 +38,7 @@ logger.debug('init training number of iters '+str(n_iters)+' and batches '+str(n
 m.inference.initialize(n_samples=1, n_iter=n_iters, logdir=m.logdir,
                        scale={m.y_pos: n_batches, m.y_neg: n_batches / args.ns},
                        kl_scaling={m.y_pos: n_batches, m.y_neg: n_batches / args.ns},
-                       optimizer=AdamOptimizer(learning_rate=0.001)
+                       optimizer=GradientDescentOptimizer(learning_rate=0.01)
                        )
 init = tf.global_variables_initializer()
 sess.run(init)
