@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from tensorflow.python.training.gradient_descent import GradientDescentOptimizer
+from tensorflow.python.training.adam import AdamOptimizer
 
 from data import *
 from models import *
@@ -38,7 +38,7 @@ logger.debug('init training number of iters '+str(n_iters)+' and batches '+str(n
 m.inference.initialize(n_samples=1, n_iter=n_iters, logdir=m.logdir,
                        scale={m.y_pos: n_batches, m.y_neg: n_batches / args.ns},
                        kl_scaling={m.y_pos: n_batches, m.y_neg: n_batches / args.ns},
-                       optimizer=GradientDescentOptimizer(learning_rate=0.01)
+                       optimizer=AdamOptimizer(learning_rate=0.001)
                        )
 init = tf.global_variables_initializer()
 sess.run(init)
