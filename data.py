@@ -1,3 +1,5 @@
+from math import sqrt
+
 from gensim.models import Word2Vec
 
 from utils import *
@@ -86,12 +88,22 @@ class bayessian_bern_emb_data():
         return state
 
     def load_embeddings(self, emb_file):
+        sampling_factor = 1e-5
         w2v_model = Word2Vec.load(emb_file)
         self.logger.debug('....building songs dictionary')
         vocabulary = w2v_model.wv.vocab
+        sampling_table = dict()
+        total_occurrences = 0
+        for song in vocabulary:
+            song_occurrencies = vocabulary[song].count
+            sampling_table[song] = song_occurrencies
+            total_occurrences += song_occurrencies
         self.dictionary = {'UNK': 0}
         for song in vocabulary:
             self.dictionary[song] = vocabulary[song].index + 1
+            song_frequency = (1. * sampling_table[song]) / total_occurrences
+            sampling_table[song] = max(0., 1 - sqrt(sampling_factor / song_frequency))
+        self.sampling_table = sampling_table
         self.L_context = len(self.dictionary)
         self.L_target = self.L_context
         self.logger.debug('size of songs dictionary ' + str(self.L_context))
