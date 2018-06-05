@@ -31,7 +31,7 @@ class bayessian_bern_emb_data():
 
     def parallel_process_text(self, data: List[str]) -> List[List[str]]:
         """Apply cleaner -> tokenizer."""
-        process_text = process_play_list_constructor(self.ns, self.dictionary, self.cs)
+        process_text = process_play_list_constructor(self.ns, self.dictionary, self.cs, self.sampling_table)
         return flatten_list(apply_parallel(process_text, data))
 
     def build_dataset(self, songs_and_tracks):
