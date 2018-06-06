@@ -23,6 +23,7 @@ def flatten_list(listoflists):
 
 
 def process_play_list_constructor(neg_samples:int, dictionary:dict, context_size:int, sampling_table:dict):
+    downsampling_factor = 0.7
     """Generate a function that will clean and tokenize text."""
     def process_play_list(play_lists):
         samples = []
@@ -32,7 +33,7 @@ def process_play_list_constructor(neg_samples:int, dictionary:dict, context_size
                 songs = play_list[1]
                 shuffle(songs)
                 for song in songs[:context_size]:
-                    if song in dictionary and sampling_table[song] < random.random():
+                    if song in dictionary and sampling_table[song] < random.random() and downsampling_factor < random.random():
                         songs2 = songs.copy()
                         shuffle(songs2)
                         for song2 in songs2[:context_size]:
