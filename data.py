@@ -52,8 +52,8 @@ class bayessian_bern_emb_data():
         self.labels = np.array(list(labels))
         self.logger.debug('....corpus generated')
 
-    def batch_generator(self):
-        batch_size = self.n_minibatch
+    def batch_generator(self, n_minibatc):
+        batch_size = n_minibatch
         data_target = self.playlists
         data_context = self.songs
         data_labels = self.labels

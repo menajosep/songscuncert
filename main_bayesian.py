@@ -20,7 +20,7 @@ pickle.dump(d, open(dir_name + "/data.dat", "wb+"))
 
 # MODEL
 d = pickle.load(open(dir_name + "/data.dat", "rb+"))
-d.batch = d.batch_generator()
+d.batch = d.batch_generator(args.mb)
 m = bayesian_emb_model(d, args.mb, sess, dir_name)
 
 
