@@ -1,24 +1,16 @@
 import tensorflow as tf
+from gensim.models import Word2Vec
 from tensorflow.contrib.tensorboard.plugins import projector
 import os
 import pickle
 import numpy as np
 import csv
 
-variational_data = pickle.load(open('fits/playlists_songs_300D/variational.dat', 'rb'))
-playlist_embeddings = variational_data['rhos']
-playlist_sigmas = variational_data['sigma_rhos']
-discard_noise_indexes = np.where(playlist_sigmas > 0.05)
-good_embeddings = np.delete(playlist_embeddings, discard_noise_indexes, axis=0)
-
-# type = 'raw'|filtered
-type = 'filtered'
-if type == 'raw':
-    embeddings = playlist_embeddings
-else:
-    embeddings = good_embeddings
+type = 'gensim'
 out_dir = type
-
+emb_file = '/Users/jose.mena/dev/personal/recsyschallenge18/embeddings/wv_model_normalized_playlists_size300_MPD'
+w2v_model = Word2Vec.load(emb_file)
+embeddings = w2v_model.wv.vectors
 
 tf.reset_default_graph()
 sess = tf.InteractiveSession()
@@ -37,14 +29,9 @@ with open(out_dir + '/playlists_songs_300D/'+type+'_metadata.tsv', 'w') as f:
     with open('fits/playlists_songs_300D/dict_id_ntitle.csv', 'r') as dict_file:
         dictionary_reader = csv.reader(dict_file, delimiter=',', quotechar='|')
         for row in dictionary_reader:
-            if type == 'raw':
-                if row[0] != 'id':
-                    line_out = "%s\n" % row[1]
-                    f.write(line_out)
-            else:
-                if row[0] != 'id' and not np.isin(int(row[0]), discard_noise_indexes):
-                    line_out = "%s\n" % row[1]
-                    f.write(line_out)
+            if row[0] != 'id':
+                line_out = "%s\n" % row[1]
+                f.write(line_out)
 
 # create a TensorFlow summary writer
 #summary_writer = tf.summary.FileWriter(out_dir + '/' + 'filtered_emb_viz.log', sess.graph)

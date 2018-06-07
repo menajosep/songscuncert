@@ -62,6 +62,9 @@ data/
 old/
 captures/
 fits/
+raw/
+filtered/
+gensim/
 .ipynb_checkpoints/
 
 RECORD.md
