@@ -38,7 +38,7 @@ logger.debug('init training number of iters '+str(n_iters)+' and batches '+str(n
 m.inference.initialize(n_samples=1, n_iter=n_iters, logdir=m.logdir,
                        scale={m.y_pos: n_batches, m.y_neg: n_batches / args.ns},
                        kl_scaling={m.y_pos: n_batches, m.y_neg: n_batches / args.ns},
-                       optimizer=AdamOptimizer(learning_rate=0.001)
+                       optimizer=AdamOptimizer(learning_rate=0.01)
                        )
 init = tf.global_variables_initializer()
 sess.run(init)

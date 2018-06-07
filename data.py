@@ -102,7 +102,8 @@ class bayessian_bern_emb_data():
         for song in vocabulary:
             self.dictionary[song] = vocabulary[song].index + 1
             song_frequency = (1. * sampling_table[song]) / total_occurrences
-            sampling_table[song] = max(0., 1 - sqrt(sampling_factor / song_frequency))
+            sampling_table[song] = max(0., ((song_frequency - sampling_factor) / song_frequency) - sqrt(
+                sampling_factor / song_frequency))
         self.sampling_table = sampling_table
         self.L_context = len(self.dictionary)
         self.L_target = self.L_context
