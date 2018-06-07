@@ -1,9 +1,10 @@
+from math import sqrt
+
 from gensim.models import Word2Vec
 
 from utils import *
 from random import shuffle
 import collections
-
 
 
 class bayessian_bern_emb_data():
@@ -29,7 +30,7 @@ class bayessian_bern_emb_data():
 
     def parallel_process_text(self, data: List[str]) -> List[List[str]]:
         """Apply cleaner -> tokenizer."""
-        process_text = process_play_list_constructor(self.ns, self.dictionary, self.cs)
+        process_text = process_play_list_constructor(self.ns, self.dictionary, self.cs, self.sampling_table)
         return flatten_list(apply_parallel(process_text, data))
 
     def build_dataset(self, songs_and_tracks):
@@ -38,7 +39,8 @@ class bayessian_bern_emb_data():
         count_playlists = collections.Counter(raw_playlists)
         self.L_target = len(count_playlists.keys())
         self.logger.debug('number of unique playlists '+str(self.L_target))
-
+        self.logger.debug('....building sampling table')
+        self.build_sampling_table(count_playlists)
         self.logger.debug('....building samples')
         self.samples = self.parallel_process_text(songs_and_tracks)
         self.logger.debug('number of samples '+str(len(self.samples)))
@@ -104,3 +106,14 @@ class bayessian_bern_emb_data():
         self.pretreained_embeddings = np.zeros((1, self.K), dtype=np.float32).tolist()
         self.pretreained_embeddings.extend(w2v_model.wv.vectors)
         self.logger.debug('....embeddings matrix loaded')
+
+    def build_sampling_table(self, count_playlists):
+        sampling_factor = 1e-5
+        sampling_table = dict()
+        total_occurrences = sum(count_playlists.values())
+        for playlist in count_playlists:
+            playlist_frequency = (1. * count_playlists[playlist]) / total_occurrences
+            sampling_table[playlist] = max(0., ((playlist_frequency - sampling_factor) / playlist_frequency) - sqrt(
+                sampling_factor / playlist_frequency))
+        self.sampling_table = sampling_table
+

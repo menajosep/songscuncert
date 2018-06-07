@@ -22,22 +22,23 @@ def flatten_list(listoflists):
     return list(chain.from_iterable(listoflists))
 
 
-def process_play_list_constructor(neg_samples:int, dictionary:dict, context_size:int):
+def process_play_list_constructor(neg_samples:int, dictionary:dict, context_size:int, sampling_table:dict):
     """Generate a function that will clean and tokenize text."""
     def process_play_list(play_lists):
         samples = []
         dictionary_keys = list(dictionary.keys())
         try:
             for play_list in play_lists:
-                songs = play_list[1]
-                shuffle(songs)
-                for song in songs[:context_size]:
-                    if song not in dictionary:
-                        song = 'UNK'
-                    samples.append((int(play_list[0]), dictionary[song], 1))
-                for i in range(neg_samples):
-                    random_neg_sample = random.randint(0, len(dictionary) - 1)
-                    samples.append((int(play_list[0]), dictionary[dictionary_keys[random_neg_sample]], 0))
+                if sampling_table[play_list[0]] < random.random():
+                    songs = play_list[1]
+                    shuffle(songs)
+                    for song in songs[:context_size]:
+                        if song not in dictionary:
+                            song = 'UNK'
+                        samples.append((int(play_list[0]), dictionary[song], 1))
+                    for i in range(neg_samples):
+                        random_neg_sample = random.randint(0, len(dictionary) - 1)
+                        samples.append((int(play_list[0]), dictionary[dictionary_keys[random_neg_sample]], 0))
         except Exception as e:
             logging.getLogger('logging_songscuncert').error('error '+e)
         return samples
