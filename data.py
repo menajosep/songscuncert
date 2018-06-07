@@ -72,7 +72,7 @@ class bayessian_bern_emb_data():
             data_labels = data_labels[batch_size:]
             yield play_lists, songs, labels
 
-    def feed(self, target_placeholder, context_placeholder, labels_placeholder,
+    def feed(self, n_minibatch, target_placeholder, context_placeholder, labels_placeholder,
              ones_placeholder, zeros_placeholder, shuffling = False):
         play_lists, songs, labels = self.batch.__next__()
         if shuffling:
@@ -80,8 +80,8 @@ class bayessian_bern_emb_data():
         return {target_placeholder: play_lists,
                 context_placeholder: songs,
                 labels_placeholder: labels,
-                ones_placeholder: np.ones((self.n_minibatch), dtype=np.int32),
-                zeros_placeholder: np.zeros((self.n_minibatch), dtype=np.int32)
+                ones_placeholder: np.ones((n_minibatch), dtype=np.int32),
+                zeros_placeholder: np.zeros((n_minibatch), dtype=np.int32)
                 }
 
     def __getstate__(self):

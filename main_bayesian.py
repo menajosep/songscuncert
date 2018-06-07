@@ -44,7 +44,7 @@ init = tf.global_variables_initializer()
 sess.run(init)
 logger.debug('....starting training')
 for i in range(m.inference.n_iter):
-    info_dict = m.inference.update(feed_dict=d.feed(m.target_placeholder,
+    info_dict = m.inference.update(feed_dict=d.feed(args.mb, m.target_placeholder,
                                                     m.context_placeholder,
                                                     m.labels_placeholder,
                                                     m.ones_placeholder,
