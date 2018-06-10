@@ -32,6 +32,7 @@ def get_n_iters():
 
 
 # TRAINING
+sigmas_list = list()
 n_iters, n_batches = get_n_iters()
 logger.debug('init training number of iters '+str(n_iters)+' and batches '+str(n_batches))
 
@@ -51,8 +52,13 @@ for i in range(m.inference.n_iter):
                                                     m.zeros_placeholder,
                                                     True))
     m.inference.print_progress(info_dict)
-    if i % n_batches == 0:
+    if i % 10000 == 0:
         m.saver.save(sess, os.path.join(m.logdir, "model.ckpt"), i)
+        sigmas = m.sigU.eval()[:, 0]
+        sigmas_list.append(sigmas)
+        pickle.dump(sigmas_list, open(dir_name + "/sigmas.dat", "w+"))
+        if is_goog_embedding(sigmas):
+            break
 m.saver.save(sess, os.path.join(m.logdir, "model.ckpt"), i)
 logger.debug('training finished. Results are saved in ' + dir_name)
 m.dump(dir_name + "/variational.dat", d)
