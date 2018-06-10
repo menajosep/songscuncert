@@ -9,6 +9,7 @@ from math import ceil
 from itertools import chain
 import logging
 from random import shuffle
+import matplotlib.pyplot as plt
 
 
 def read_data(filename):
@@ -20,6 +21,24 @@ def read_data(filename):
 
 def flatten_list(listoflists):
     return list(chain.from_iterable(listoflists))
+
+
+def get_optimal():
+    x = np.linspace(0, 1, 100)
+    a = 1
+    for b in range(7, 17, 2):
+        optimal = np.power(x, a) * np.power((1 - x), b) + 1e-3
+        optimal = optimal / np.sum(optimal)
+    return optimal
+
+
+def is_goog_embedding(sigmas):
+    threshold = 0.5
+    optimal = get_optimal()
+    hist = plt.hist(sigmas, bins=100, color='green', label='sigma values')
+    distr = (hist[0] + 1e-5) / np.sum(hist[0])
+    distance = -np.sum(optimal * np.log(distr / optimal))
+    return distance < threshold
 
 
 def process_play_list_constructor(neg_samples:int, dictionary:dict, context_size:int, sampling_table:dict):
