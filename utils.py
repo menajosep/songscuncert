@@ -9,6 +9,7 @@ from math import ceil
 from itertools import chain
 import logging
 from random import shuffle
+import matplotlib
 import matplotlib.pyplot as plt
 
 
@@ -35,6 +36,7 @@ def get_optimal():
 def is_goog_embedding(sigmas):
     threshold = 0.5
     optimal = get_optimal()
+    matplotlib.use('Agg')
     hist = plt.hist(sigmas, bins=100, color='green', label='sigma values')
     distr = (hist[0] + 1e-5) / np.sum(hist[0])
     distance = -np.sum(optimal * np.log(distr / optimal))

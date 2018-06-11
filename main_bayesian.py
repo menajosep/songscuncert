@@ -3,13 +3,11 @@ from __future__ import division
 from __future__ import print_function
 
 from tensorflow.python.training.adam import AdamOptimizer
-import matplotlib
 
 from data import *
 from models import *
 from args import *
 
-matplotlib.use('Agg')
 
 logger = get_logger()
 
