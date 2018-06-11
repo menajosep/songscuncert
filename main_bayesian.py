@@ -3,6 +3,8 @@ from __future__ import division
 from __future__ import print_function
 
 from tensorflow.python.training.adam import AdamOptimizer
+import matplotlib
+matplotlib.use('Agg')
 
 from data import *
 from models import *
