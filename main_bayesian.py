@@ -3,16 +3,20 @@ from __future__ import division
 from __future__ import print_function
 
 from tensorflow.python.training.adam import AdamOptimizer
+import matplotlib
 
 from data import *
 from models import *
 from args import *
+
+matplotlib.use('Agg')
 
 logger = get_logger()
 
 args, dir_name = parse_args()
 os.makedirs(dir_name)
 sess = ed.get_session()
+
 
 # DATA
 d = bayessian_bern_emb_data(args.in_file, args.emb_file, args.ns, args.K, args.cs, dir_name, logger)
