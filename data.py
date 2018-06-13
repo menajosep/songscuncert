@@ -108,7 +108,7 @@ class bayessian_bern_emb_data():
         self.logger.debug('....embeddings matrix loaded')
 
     def build_sampling_table(self, count_playlists):
-        sampling_factor = 1e-5
+        sampling_factor = 1e-3
         sampling_table = dict()
         total_occurrences = sum(count_playlists.values())
         for playlist in count_playlists:
