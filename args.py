@@ -22,8 +22,11 @@ def parse_args():
         parser.add_argument('--in_file', type=str, default=None,
                             help='input file')
 
-        parser.add_argument('--emb_file', type=str, default=None,
-                            help='pretrained embedings file')
+        parser.add_argument('--target_emb_file', type=str, default=None,
+                            help='pretrained embedings file for target items')
+
+        parser.add_argument('--context_emb_file', type=str, default=None,
+                            help='pretrained embedings file for context items')
 
         args =  parser.parse_args()
         dir_name = 'fits/fit' + time.strftime("%y_%m_%d_%H_%M_%S")

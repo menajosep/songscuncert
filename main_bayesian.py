@@ -19,7 +19,7 @@ sess = ed.get_session()
 
 
 # DATA
-d = bayessian_bern_emb_data(args.in_file, args.emb_file, args.ns, args.K, args.cs, dir_name, logger)
+d = bayessian_bern_emb_data(args.in_file, args.target_emb_file, args.context_emb_file, args.ns, args.K, args.cs, dir_name, logger)
 pickle.dump(d, open(dir_name + "/data.dat", "wb+"))
 
 # MODEL

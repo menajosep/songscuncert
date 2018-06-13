@@ -8,7 +8,7 @@ import collections
 
 
 class bayessian_bern_emb_data():
-    def __init__(self, input_file, emb_file, ns, K, cs, dir_name, logger):
+    def __init__(self, input_file, target_emb_file, context_emb_file, ns, K, cs, dir_name, logger):
         self.logger = logger
         self.logger.debug('initializing bayessian_bern_emb_data with file '+input_file)
         self.logger.debug('neg sampling '+str(ns))
@@ -20,7 +20,9 @@ class bayessian_bern_emb_data():
         self.cs = cs
         self.dir_name = dir_name
         self.logger.debug('....loading embeddings file')
-        self.load_embeddings(emb_file)
+        if target_emb_file:
+            self.load_target_embeddings(target_emb_file)
+        self.load_context_embeddings(context_emb_file)
         self.logger.debug('....reading data')
         songs_and_tracks = read_data(input_file)
         self.logger.debug('....building corpus')
@@ -93,7 +95,16 @@ class bayessian_bern_emb_data():
         del state['logger']
         return state
 
-    def load_embeddings(self, emb_file):
+    def load_target_embeddings(self, emb_file):
+        self.logger.debug('....loading playlists embeddings matrix')
+        w2v_model = Word2Vec.load(emb_file)
+        target_embeddings = []
+        for elem in range(len(w2v_model.wv.vectors)):
+            target_embeddings.append(w2v_model.wv.word_vec(str(elem)))
+        self.pretreained_target_embeddings = np.array(target_embeddings)
+        self.logger.debug('....playlists embeddings matrix loaded')
+
+    def load_context_embeddings(self, emb_file):
         w2v_model = Word2Vec.load(emb_file)
         self.logger.debug('....building songs dictionary')
         vocabulary = w2v_model.wv.vocab
@@ -102,9 +113,9 @@ class bayessian_bern_emb_data():
             self.dictionary[song] = vocabulary[song].index + 1
         self.L_context = len(self.dictionary)
         self.logger.debug('size of songs dictionary ' + str(self.L_context))
-        self.logger.debug('....loading embeddings matrix')
-        self.pretreained_embeddings = np.zeros((1, self.K), dtype=np.float32).tolist()
-        self.pretreained_embeddings.extend(w2v_model.wv.vectors)
+        self.logger.debug('....loading songs embeddings matrix')
+        self.pretreained_context_embeddings = np.zeros((1, self.K), dtype=np.float32).tolist()
+        self.pretreained_context_embeddings.extend(w2v_model.wv.vectors)
         self.logger.debug('....embeddings matrix loaded')
 
     def build_sampling_table(self, count_playlists):

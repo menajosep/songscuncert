@@ -65,7 +65,7 @@ class bayesian_emb_model():
         #self.locV = tf.get_variable("qV/loc", [d.L_context, self.K], initializer=tf.zeros_initializer())
 
         self.qU = Normal(loc=self.locU, scale=self.sigU)
-        self.qV = Normal(loc=d.pretreained_embeddings, scale=self.sigV)
+        self.qV = Normal(loc=d.pretreained_context_embeddings, scale=self.sigV)
 
         self.inference = ed.KLqp({self.U: self.qU, self.V: self.qV},
                                  data={self.y_pos: self.ones_placeholder,
