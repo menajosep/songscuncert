@@ -39,7 +39,7 @@ logger.debug('init training number of iters '+str(n_iters)+' and batches '+str(n
 m.inference.initialize(n_samples=1, n_iter=n_iters, logdir=m.logdir,
                        scale={m.y_pos: n_batches, m.y_neg: n_batches / args.ns},
                        kl_scaling={m.y_pos: n_batches, m.y_neg: n_batches / args.ns},
-                       optimizer=AdamOptimizer(learning_rate=0.01)
+                       optimizer=AdamOptimizer(learning_rate=0.001)
                        )
 init = tf.global_variables_initializer()
 sess.run(init)
@@ -52,7 +52,7 @@ for i in range(m.inference.n_iter):
                                                     m.zeros_placeholder,
                                                     True))
     m.inference.print_progress(info_dict)
-    if i % 10000 == 0:
+    if i % 20000 == 0:
         m.saver.save(sess, os.path.join(m.logdir, "model.ckpt"), i)
         sigmas = m.sigU.eval()[:, 0]
         sigmas_list.append(sigmas)
