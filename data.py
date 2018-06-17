@@ -22,6 +22,8 @@ class bayessian_bern_emb_data():
         self.logger.debug('....loading embeddings file')
         if target_emb_file:
             self.load_target_embeddings(target_emb_file)
+        else:
+            self.pretreained_target_embeddings = None
         self.load_context_embeddings(context_emb_file)
         self.logger.debug('....reading data')
         songs_and_tracks = read_data(input_file)
