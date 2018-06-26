@@ -16,7 +16,7 @@ def read_data(filename):
     """Extract the first file enclosed in a zip file as a list of words"""
     songs_and_tracks = np.load(filename)
     logging.getLogger('logging_songscuncert').debug('number of loaded playists:'+str(len(songs_and_tracks)))
-    return songs_and_tracks[:6000]
+    return songs_and_tracks
 
 
 def flatten_list(listoflists):
