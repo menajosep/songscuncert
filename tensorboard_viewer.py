@@ -4,17 +4,24 @@ import os
 import pickle
 import numpy as np
 import csv
+from numpy import linalg as LA
 
 variational_data = pickle.load(open('fits/playlists_songs_300D/variational.dat', 'rb'))
 playlist_embeddings = variational_data['rhos']
+
+norm_embs = []
+for emb in playlist_embeddings:
+    norm_emb = emb/LA.norm(emb)
+    norm_embs.append(norm_emb)
+norm_embs = np.array(norm_embs)
 playlist_sigmas = variational_data['sigma_rhos']
-discard_noise_indexes = np.where(playlist_sigmas > 0.5)
-good_embeddings = np.delete(playlist_embeddings, discard_noise_indexes, axis=0)
+discard_noise_indexes = np.where(playlist_sigmas > 0.1)
+good_embeddings = np.delete(norm_embs, discard_noise_indexes, axis=0)
 
 # type = 'raw'|filtered
-type = 'filtered'
+type = 'raw'
 if type == 'raw':
-    embeddings = playlist_embeddings
+    embeddings = norm_embs
 else:
     embeddings = good_embeddings
 
