@@ -18,6 +18,9 @@ def parse_args():
         parser.add_argument('--mb', type=int, default=5000,
                             help='Minibatch size. Default is 5000.')
 
+        parser.add_argument('--samples', type=int, default=10000000,
+                            help='Number of samples. Default is 10000000.')
+
         args = parser.parse_args()
         dir_name = 'class_fits/fit' + time.strftime("%y_%m_%d_%H_%M_%S")
 

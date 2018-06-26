@@ -16,7 +16,7 @@ def read_data(filename):
     """Extract the first file enclosed in a zip file as a list of words"""
     songs_and_tracks = np.load(filename)
     logging.getLogger('logging_songscuncert').debug('number of loaded playists:'+str(len(songs_and_tracks)))
-    return songs_and_tracks
+    return songs_and_tracks[:6000]
 
 
 def flatten_list(listoflists):
@@ -46,22 +46,33 @@ def is_goog_embedding(sigmas):
     return distance < threshold
 
 
-def process_play_list_constructor(num_songs:int, sampling_table:dict):
+def process_play_list_constructor(context_embeddings, target_embeddings, playlist_and_tracks):
     """Generate a function that will clean and tokenize text."""
     def process_play_list(play_lists):
         samples = []
         try:
-            for play_list in play_lists:
-                if sampling_table[play_list[0]] < random.random():
-                    songs = play_list[1]
-                    if len(songs) > 50:
-                        shuffle(songs)
-                        for song in songs[:100]:
-                            other_songs = songs.copy()
-                            other_songs.remove(song)
-                            samples.append((int(play_list[0]), other_songs, song, 1))
-                            random_neg_sample = random.randint(0, num_songs - 1)
-                            samples.append((int(play_list[0]), other_songs, random_neg_sample, 0))
+            for play_list_id in play_lists:
+                playlist, songs = zip(playlist_and_tracks[play_list_id])
+                playlist_embedding = target_embeddings.wv.vectors[int(playlist[0])]
+                count = 0
+                average = np.zeros(len(context_embeddings.wv.vectors[0]))
+                for song in songs[0]:
+                    if song in context_embeddings.wv.vocab:
+                        average = np.add(average, context_embeddings.wv.vectors[int(song)])
+                        count += 1
+                average = average / count
+                top2000 = context_embeddings.similar_by_vector(average, topn=2000, restrict_vocab=None)
+                target_index = random.randint(0, count - 1)
+                target_embedding = context_embeddings.wv.vectors[target_index]
+                negative_sample_index = random.randint(0, len(top2000) - 1)
+                negative_sample_embedding = context_embeddings.wv.vectors[negative_sample_index]
+                target_sample = np.hstack((playlist_embedding, average, target_embedding))
+                samples.append((target_sample, 1))
+                negative_sample_sample = np.hstack((playlist_embedding, average, negative_sample_embedding))
+                samples.append((negative_sample_sample, 0))
+
+
+
         except Exception as e:
             logging.getLogger('logging_songscuncert').error('error '+e)
         return samples
