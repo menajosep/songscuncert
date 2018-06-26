@@ -16,7 +16,7 @@ def read_data(filename):
     """Extract the first file enclosed in a zip file as a list of words"""
     songs_and_tracks = np.load(filename)
     logging.getLogger('logging_songscuncert').debug('number of loaded playists:'+str(len(songs_and_tracks)))
-    return songs_and_tracks
+    return songs_and_tracks[:1000]
 
 
 def flatten_list(listoflists):
@@ -59,9 +59,9 @@ def process_play_list_constructor(num_songs:int, sampling_table:dict):
                         for song in songs[:100]:
                             other_songs = songs.copy()
                             other_songs.remove(song)
-                            samples.append((int(play_list[0]), other_songs, song))
+                            samples.append((int(play_list[0]), other_songs, song, 1))
                             random_neg_sample = random.randint(0, num_songs - 1)
-                            samples.append((int(play_list[0]), other_songs, random_neg_sample))
+                            samples.append((int(play_list[0]), other_songs, random_neg_sample, 0))
         except Exception as e:
             logging.getLogger('logging_songscuncert').error('error '+e)
         return samples

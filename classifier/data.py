@@ -35,31 +35,36 @@ class classifier_data():
         self.logger.debug('number of samples '+str(len(self.samples)))
         self.logger.debug('....shuffling samples')
         shuffle(self.samples)
-        playlists, songs, labels = zip(*self.samples)
+        playlists, songs, new_songs, labels = zip(*self.samples)
         self.playlists = np.array(list(playlists))
         self.songs = np.array(list(songs))
+        self.new_songs = np.array(list(new_songs))
         self.labels = np.array(list(labels))
         self.logger.debug('....corpus generated')
 
     def batch_generator(self, n_minibatch):
         batch_size = n_minibatch
-        data_target = self.playlists
-        data_context = self.songs
+        data_playlists = self.playlists
+        data_songs = self.songs
+        data_new_songs = self.new_songs
         data_labels = self.labels
         while True:
-            if data_target.shape[0] < batch_size:
-                data_target = np.hstack([data_target, self.playlists])
-                data_context = np.hstack([data_context, self.songs])
+            if data_playlists.shape[0] < batch_size:
+                data_playlists = np.hstack([data_playlists, self.playlists])
+                data_songs = np.hstack([data_songs, self.songs])
+                data_new_songs = np.hstack([data_new_songs, self.new_songs])
                 data_labels = np.hstack([data_labels, self.labels])
-                if data_target.shape[0] < batch_size:
+                if data_playlists.shape[0] < batch_size:
                     continue
-            play_lists = data_target[:batch_size]
-            songs = data_context[:batch_size]
+            play_lists = data_playlists[:batch_size]
+            songs = data_songs[:batch_size]
+            new_songs = data_new_songs[:batch_size]
             labels = data_labels[:batch_size]
-            data_target = data_target[batch_size:]
-            data_context = data_context[batch_size:]
+            data_playlists = data_playlists[batch_size:]
+            data_songs = data_songs[batch_size:]
+            data_new_songs = data_new_songs[batch_size:]
             data_labels = data_labels[batch_size:]
-            yield play_lists, songs, labels
+            yield play_lists, songs, new_songs, labels
 
     def feed(self, n_minibatch, target_placeholder, context_placeholder, labels_placeholder,
              ones_placeholder, zeros_placeholder, shuffling = False):
