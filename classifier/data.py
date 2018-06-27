@@ -1,6 +1,7 @@
 from random import shuffle
 
 from classifier.utils import *
+import pickle
 
 
 class classifier_data():
@@ -9,6 +10,7 @@ class classifier_data():
         self.logger.debug('initializing classifier_data with file ' + input_file)
         self.logger.debug('working dir ' + dir_name)
         self.logger.debug('....loading embeddings file')
+        self.dir_name = dir_name
         self.target_emb_file = target_emb_file
         self.context_emb_file = context_emb_file
         self.logger.debug('....reading data')
@@ -30,7 +32,12 @@ class classifier_data():
         self.logger.debug('number of samples '+str(len(self.samples)))
         self.logger.debug('....shuffling samples')
         shuffle(self.samples)
-        samples, labels = zip(*self.samples)
+        playlists, songs, samples, labels = zip(*self.samples)
+        dat = {'playlists': playlists,
+               'songs': songs,
+               'samples': samples,
+               'labels': labels}
+        pickle.dump(dat, open(self.dir_name + "/classifier_data_set.dat", "wb+"), protocol=4)
         self.samples = np.array(list(samples))
         self.labels = np.array(list(labels))
         self.logger.debug('....corpus generated')

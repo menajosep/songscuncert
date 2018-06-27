@@ -55,24 +55,43 @@ def process_play_list_constructor(target_embeddings_file, context_embeddings_fil
         try:
             for play_list_songs in playlist_and_tracks:
                 playlist, songs = zip(play_list_songs)
+                playlist = playlist[0]
+                songs = songs[0]
+                found = False
                 count = 0
-                average = np.zeros(len(context_embeddings.wv.vectors[0]))
-                for song in songs[0]:
-                    if song in context_embeddings.wv.vocab:
-                        average = np.add(average, context_embeddings.wv.vectors[int(song)])
+                while not found and count < 10:
+                    target_index = random.randint(0, len(songs) - 1)
+                    if songs[target_index] in context_embeddings.wv.vocab:
+                        found = True
+                    else:
                         count += 1
-                if count > 0:
-                    playlist_embedding = target_embeddings.wv.vectors[int(playlist[0])]
-                    average = average / count
-                    top2000 = context_embeddings.similar_by_vector(average, topn=2000, restrict_vocab=None)
-                    target_index = random.randint(0, count - 1)
-                    target_embedding = context_embeddings.wv.vectors[target_index]
-                    negative_sample_index = random.randint(0, len(top2000) - 1)
-                    negative_sample_embedding = context_embeddings.wv.vectors[negative_sample_index]
-                    target_sample = np.hstack((playlist_embedding, average, target_embedding))
-                    samples.append((target_sample, 1))
-                    negative_sample_sample = np.hstack((playlist_embedding, average, negative_sample_embedding))
-                    samples.append((negative_sample_sample, 0))
+                if found:
+                    count = 0
+                    average = np.zeros(len(context_embeddings.wv.vectors[0]))
+                    for song in songs[0]:
+                        if song in context_embeddings.wv.vocab and song != songs[target_index]:
+                            average = np.add(average, context_embeddings.wv.vectors[int(song)])
+                            count += 1
+                    if count > 0:
+                        playlist_embedding = target_embeddings.wv.vectors[int(playlist)]
+                        average = average / count
+                        top = context_embeddings.similar_by_vector(average, topn=1000, restrict_vocab=None)
+                        target_embedding = context_embeddings.wv.vectors[int(songs[target_index])]
+                        found_negative = False
+                        counter = 0
+                        while not found_negative and counter < 100:
+                            negative_sample_index = random.randint(0, len(top) - 1)
+                            if top[negative_sample_index][0] in context_embeddings.wv.vocab \
+                                    and top[negative_sample_index][0] not in songs:
+                                found_negative = True
+                            else:
+                                counter += 1
+                        if found_negative:
+                            negative_sample_embedding = context_embeddings.wv.vectors[int(top[negative_sample_index][0])]
+                            target_sample = np.hstack((playlist_embedding, average, target_embedding))
+                            samples.append((playlist, songs[target_index], target_sample, 1))
+                            negative_sample_sample = np.hstack((playlist_embedding, average, negative_sample_embedding))
+                            samples.append((playlist, top[negative_sample_index][0], negative_sample_sample, 0))
         except Exception as e:
             logging.getLogger('logging_songscuncert').error('error '+e)
         return samples
