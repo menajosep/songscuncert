@@ -19,7 +19,7 @@ os.makedirs(dir_name)
 
 # DATA
 d = classifier_data(args.samples, args.in_file, args.target_emb_file, args.context_emb_file, dir_name, logger)
-pickle.dump(d, open(dir_name + "/classifier_data.dat", "wb+"))
+pickle.dump(d, open(dir_name + "/classifier_data.dat", "wb+"), protocol=4)
 
 # MODEL
 #d = pickle.load(open("class_fits/classifier_data.dat", "rb+"))
