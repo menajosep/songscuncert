@@ -16,7 +16,7 @@ class classifier_model():
             n_hidden_1 = 256  # 1st layer number of neurons
             n_hidden_2 = 256  # 2nd layer number of neurons
             n_hidden_3 = 64  # 3rd layer number of neurons
-            num_input = 300  # MNIST data input (img shape: 28*28)
+            num_input = 700  # MNIST data input (img shape: 28*28)
             num_classes = 1  # MNIST total classes (0-9 digits)
 
             # Store layers weight & bias
