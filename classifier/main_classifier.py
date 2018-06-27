@@ -24,16 +24,17 @@ pickle.dump(d, open(dir_name + "/classifier_data.dat", "wb+"))
 # MODEL
 #d = pickle.load(open("class_fits/classifier_data.dat", "rb+"))
 d.batch = d.batch_generator(args.mb)
-m = classifier_model(d, dir_name)
 
-# Initialize the variables (i.e. assign their default value)
-init = tf.global_variables_initializer()
-
-# Add ops to save and restore all the variables.
-saver = tf.train.Saver()
 
 # Start training
 with tf.Session() as sess:
+    m = classifier_model(sess, d, dir_name)
+
+    # Initialize the variables (i.e. assign their default value)
+    init = tf.global_variables_initializer()
+
+    # Add ops to save and restore all the variables.
+    saver = tf.train.Saver()
 
     # Run the initializer
     sess.run(init)
@@ -50,11 +51,12 @@ with tf.Session() as sess:
                   "{:.4f}".format(loss) + ", Training Accuracy= " + \
                   "{:.3f}".format(acc))
 
+
     print("Optimization Finished!")
 
     # Calculate accuracy for MNIST test images
     print("Testing Accuracy:", \
         sess.run(m.accuracy, feed_dict=d.feed(m.samples_placeholder, m.labels_placeholder)))
     # Save the variables to disk.
-    save_path = saver.save(sess, dir_name + "model.ckpt")
+    save_path = m.saver.save(sess, dir_name + "/model.ckpt")
     print("Model saved in path: %s" % save_path)
