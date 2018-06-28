@@ -10,12 +10,12 @@ class classifier_model():
         with tf.name_scope('model'):
             # Data Placeholder
             with tf.name_scope('input'):
-                self.samples_placeholder = tf.placeholder(tf.float32, shape=[None, 700])
+                self.samples_placeholder = tf.placeholder(tf.float32, shape=[None, 1300])
                 self.labels_placeholder = tf.placeholder(tf.float32)
 
             # Network Parameters
-            n_hidden_1 = 500  # 1st layer number of neurons
-            n_hidden_2 = 500  # 2nd layer number of neurons
+            n_hidden_1 = 1000  # 1st layer number of neurons
+            n_hidden_2 = 1000  # 2nd layer number of neurons
             n_hidden_3 = 300  # 3rd layer number of neurons
             n_hidden_4 = 64  # 3rd layer number of neurons
             num_classes = 1  # MNIST total classes (0-9 digits)

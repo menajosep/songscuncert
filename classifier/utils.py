@@ -37,9 +37,15 @@ def process_play_list_constructor(target_embeddings_file, context_embeddings_fil
                 if found:
                     count = 0
                     average = np.zeros(len(context_embeddings.wv.vectors[0]))
+                    seeds = None
                     # get those seeds that have a valid embedding
-                    for song in songs:
+                    for song in songs and count < 3:
                         if song in context_embeddings.wv.vocab and song != songs[target_index]:
+                            if count < 3:
+                                if seeds is None:
+                                    seeds = context_embeddings.wv.vectors[int(song)]
+                                else:
+                                    seeds = np.hstack((average, context_embeddings.wv.vectors[int(song)]))
                             average = np.add(average, context_embeddings.wv.vectors[int(song)])
                             count += 1
                     # if there valid seeds to calculate the average
@@ -58,11 +64,11 @@ def process_play_list_constructor(target_embeddings_file, context_embeddings_fil
                             # get the neg sample embedding
                             negative_sample_embedding = context_embeddings.wv.vectors[int(top[negative_sample_index][0])]
                             # build the pos sample
-                            target_sample = np.hstack((playlist_embedding, average, target_embedding))
+                            target_sample = np.hstack((playlist_embedding, seeds, target_embedding))
                             # add it together with the corresponding ids
                             samples.append((playlist, songs[target_index], target_sample, 1))
                             # build the neg sample
-                            negative_sample_sample = np.hstack((playlist_embedding, average, negative_sample_embedding))
+                            negative_sample_sample = np.hstack((playlist_embedding, seeds, negative_sample_embedding))
                             # add it together with the corresponding ids
                             samples.append((playlist, top[negative_sample_index][0], negative_sample_sample, 0))
         except Exception as e:
