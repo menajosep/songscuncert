@@ -48,7 +48,7 @@ with tf.Session() as sess:
         if step % display_step == 0 or step == 1:
             # Calculate batch loss and accuracy
             loss, acc = sess.run([m.loss_op, m.accuracy], feed_dict=d.feed(m.samples_placeholder, m.labels_placeholder))
-            print("Step " + str(step) + ", Minibatch Loss= " + \
+            logger.debug("Step " + str(step) + ", Minibatch Loss= " + \
                   "{:.4f}".format(loss) + ", Training Accuracy= " + \
                   "{:.3f}".format(acc))
 
