@@ -32,44 +32,70 @@ def process_play_list_constructor(target_embeddings_file, context_embeddings_fil
                 playlist, songs = zip(play_list_songs)
                 playlist = playlist[0]
                 songs = songs[0]
-                found = False
-                count = 0
-                while not found and count < 10:
-                    target_index = random.randint(0, len(songs) - 1)
-                    if songs[target_index] in context_embeddings.wv.vocab:
-                        found = True
-                    else:
-                        count += 1
+                found, target_index = get_valid_target(context_embeddings, songs)
+                # if we got a valid target continue
                 if found:
                     count = 0
                     average = np.zeros(len(context_embeddings.wv.vectors[0]))
-                    for song in songs[0]:
+                    # get those seeds that have a valid embedding
+                    for song in songs:
                         if song in context_embeddings.wv.vocab and song != songs[target_index]:
                             average = np.add(average, context_embeddings.wv.vectors[int(song)])
                             count += 1
+                    # if there valid seeds to calculate the average
                     if count > 0:
+                        # get the embedding for the playlist
                         playlist_embedding = target_embeddings.wv.vectors[int(playlist)]
+                        # get the centroid as the average of the embeddings of the valid seeds
                         average = average / count
+                        # get the top similar songs for the centroid
                         top = context_embeddings.similar_by_vector(average, topn=1000, restrict_vocab=None)
+                        # get the embedding of the targe
                         target_embedding = context_embeddings.wv.vectors[int(songs[target_index])]
-                        found_negative = False
-                        counter = 0
-                        while not found_negative and counter < 100:
-                            negative_sample_index = random.randint(0, len(top) - 1)
-                            if top[negative_sample_index][0] in context_embeddings.wv.vocab \
-                                    and top[negative_sample_index][0] not in songs:
-                                found_negative = True
-                            else:
-                                counter += 1
+                        found_negative, negative_sample_index = get_valid_neg_sample(context_embeddings, songs, top)
+                        #if we find a valid neg sample proceed to build the samples
                         if found_negative:
+                            # get the neg sample embedding
                             negative_sample_embedding = context_embeddings.wv.vectors[int(top[negative_sample_index][0])]
+                            # build the pos sample
                             target_sample = np.hstack((playlist_embedding, average, target_embedding))
+                            # add it together with the corresponding ids
                             samples.append((playlist, songs[target_index], target_sample, 1))
+                            # build the neg sample
                             negative_sample_sample = np.hstack((playlist_embedding, average, negative_sample_embedding))
+                            # add it together with the corresponding ids
                             samples.append((playlist, top[negative_sample_index][0], negative_sample_sample, 0))
         except Exception as e:
             logging.getLogger('logging_songscuncert').error('error '+e)
         return samples
+
+
+
+    def get_valid_target(context_embeddings, songs):
+        found = False
+        count = 0
+        # try 10 times to get a random seed that has a valid embedding
+        while not found and count < 10:
+            target_index = random.randint(0, len(songs) - 1)
+            if songs[target_index] in context_embeddings.wv.vocab:
+                found = True
+            else:
+                count += 1
+        return found, target_index
+
+    def get_valid_neg_sample(context_embeddings, songs, top):
+        found_negative = False
+        counter = 0
+        # try 100 times to find a valid neg sample picked randomly from the top similar
+        # songs to the centroid
+        while not found_negative and counter < 100:
+            negative_sample_index = random.randint(0, len(top) - 1)
+            if top[negative_sample_index][0] in context_embeddings.wv.vocab \
+                    and top[negative_sample_index][0] not in songs:
+                found_negative = True
+            else:
+                counter += 1
+        return found_negative, negative_sample_index
 
     return process_play_list
 
