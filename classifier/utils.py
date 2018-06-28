@@ -45,7 +45,7 @@ def process_play_list_constructor(target_embeddings_file, context_embeddings_fil
                                 if seeds is None:
                                     seeds = context_embeddings.wv.vectors[int(song)]
                                 else:
-                                    seeds = np.hstack((average, context_embeddings.wv.vectors[int(song)]))
+                                    seeds = np.hstack((seeds, context_embeddings.wv.vectors[int(song)]))
                             average = np.add(average, context_embeddings.wv.vectors[int(song)])
                             count += 1
                     # if there valid seeds to calculate the average
