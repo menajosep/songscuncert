@@ -9,7 +9,7 @@ class classifier_model():
         with tf.name_scope('model'):
             # Data Placeholder
             with tf.name_scope('input'):
-                self.samples_placeholder = tf.placeholder(tf.float32)
+                self.samples_placeholder = tf.placeholder(tf.float32, shape=[None, 700])
                 self.labels_placeholder = tf.placeholder(tf.float32)
 
             # Network Parameters
