@@ -40,7 +40,7 @@ with tf.Session() as sess:
     # Run the initializer
     sess.run(init)
     display_step = 1000
-    num_steps = 40000
+    num_steps = 400000
 
     for step in range(1, num_steps+1):
         # Run optimization op (backprop)
@@ -52,12 +52,11 @@ with tf.Session() as sess:
                   "{:.4f}".format(loss) + ", Training Accuracy= " + \
                   "{:.3f}".format(acc))
 
-
-    print("Optimization Finished!")
+    logger.debug("Optimization Finished!")
 
     # Calculate accuracy for MNIST test images
-    print("Testing Accuracy:", \
+    logger.debug("Testing Accuracy:", \
         sess.run(m.accuracy, feed_dict=d.feed(m.samples_placeholder, m.labels_placeholder)))
     # Save the variables to disk.
     save_path = m.saver.save(sess, dir_name + "/model.ckpt")
-    print("Model saved in path: %s" % save_path)
+    logger.debug("Model saved in path: %s" % save_path)
