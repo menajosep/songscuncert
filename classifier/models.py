@@ -13,8 +13,8 @@ class classifier_model():
                 self.labels_placeholder = tf.placeholder(tf.float32)
 
             # Network Parameters
-            n_hidden_1 = 256  # 1st layer number of neurons
-            n_hidden_2 = 256  # 2nd layer number of neurons
+            n_hidden_1 = 500  # 1st layer number of neurons
+            n_hidden_2 = 500  # 2nd layer number of neurons
             n_hidden_3 = 64  # 3rd layer number of neurons
             num_input = 700  # MNIST data input (img shape: 28*28)
             num_classes = 1  # MNIST total classes (0-9 digits)
