@@ -1,8 +1,9 @@
 from utils import *
+import tensorflow as tf
 
 
 class classifier_model():
-    def __init__(self, sess, d, logdir):
+    def __init__(self, sess, logdir):
         self.logdir = logdir
         self.sess = sess
 

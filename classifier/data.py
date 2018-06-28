@@ -42,28 +42,6 @@ class classifier_data():
         self.labels = np.array(list(labels))
         self.logger.debug('....corpus generated')
 
-    def batch_generator(self, n_minibatch):
-        batch_size = n_minibatch
-        data_samples = self.samples
-        data_labels = self.labels
-        while True:
-            if data_samples.shape[0] < batch_size:
-                data_samples = np.concatenate([data_samples, self.samples])
-                data_labels = np.concatenate([data_labels, self.labels])
-                if data_samples.shape[0] < batch_size:
-                    continue
-            samples = data_samples[:batch_size]
-            labels = data_labels[:batch_size]
-            data_samples = data_samples[batch_size:]
-            data_labels = data_labels[batch_size:]
-            yield samples, labels
-
-    def feed(self, samples_placeholder, labels_placeholder, shuffling = False):
-        samples, labels = self.batch.__next__()
-        if shuffling:
-            labels = np.random.permutation(labels)
-        return {samples_placeholder: samples,
-                labels_placeholder: labels}
 
     def __getstate__(self):
         # Copy the object's state from self.__dict__ which contains

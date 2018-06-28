@@ -1,49 +1,24 @@
 import logging
+import random
 from itertools import chain
 from math import ceil
 from typing import List, Callable, Any
 
-import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
 from gensim.models import Word2Vec
 from more_itertools import chunked
 from pathos.multiprocessing import Pool, cpu_count
-import random
 
 
 def read_data(filename):
     """Extract the first file enclosed in a zip file as a list of words"""
     songs_and_tracks = np.load(filename)
     logging.getLogger('logging_songscuncert').debug('number of loaded playists:'+str(len(songs_and_tracks)))
-    return songs_and_tracks
+    return songs_and_tracks[:10000]
 
 
 def flatten_list(listoflists):
     return list(chain.from_iterable(listoflists))
-
-
-def get_optimal():
-    x = np.linspace(0, 1, 100)
-    a = 1
-    optimals = []
-    for b in range(7, 17, 2):
-        optimal = np.power(x, a) * np.power((1 - x), b) + 1e-3
-        optimal = optimal / np.sum(optimal)
-        optimals.append(optimal)
-    return optimals
-
-
-def is_goog_embedding(sigmas):
-    threshold = 1e-3
-    optimals = get_optimal()
-    hist = plt.hist(sigmas, bins=100, color='green', label='sigma values')
-    distr = (hist[0] + 1e-5) / np.sum(hist[0])
-    distance = 0
-    for optimal in optimals:
-        distance += -np.sum(optimal * np.log(distr / optimal))
-    distance = distance / len(optimals)
-    return distance < threshold
 
 
 def process_play_list_constructor(target_embeddings_file, context_embeddings_file):
@@ -120,17 +95,6 @@ def apply_parallel(func: Callable,
         return transformed_data
 
 
-def variable_summaries(summary_name, var):
-    with tf.name_scope(summary_name):
-        mean = tf.reduce_mean(var)
-        tf.summary.scalar('mean', mean)
-        with tf.name_scope('stddev'):
-            stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
-        tf.summary.scalar('stddev', stddev)
-        tf.summary.scalar('max', tf.reduce_max(var))
-        tf.summary.scalar('min', tf.reduce_min(var))
-
-
 def load_embeddings(emb_file):
     w2v_model = Word2Vec.load(emb_file)
     return w2v_model
@@ -157,3 +121,27 @@ def get_logger():
     logger.addHandler(ch)
     return logger
 
+
+def batch_generator(n_minibatch, input_samples, input_labels):
+    batch_size = n_minibatch
+    data_samples = input_samples
+    data_labels = input_labels
+    while True:
+        if data_samples.shape[0] < batch_size:
+            data_samples = np.concatenate([data_samples, input_samples])
+            data_labels = np.concatenate([data_labels, input_labels])
+            if data_samples.shape[0] < batch_size:
+                continue
+        samples = data_samples[:batch_size]
+        labels = data_labels[:batch_size]
+        data_samples = data_samples[batch_size:]
+        data_labels = data_labels[batch_size:]
+        yield samples, labels
+
+
+def feed(batch, samples_placeholder, labels_placeholder, shuffling = False):
+    samples, labels = batch.__next__()
+    if shuffling:
+        labels = np.random.permutation(labels)
+    return {samples_placeholder: samples,
+            labels_placeholder: labels}
