@@ -17,38 +17,13 @@ class classifier_model():
             n_hidden_2 = 500  # 2nd layer number of neurons
             n_hidden_3 = 300  # 3rd layer number of neurons
             n_hidden_4 = 64  # 3rd layer number of neurons
-            num_input = 700  # MNIST data input (img shape: 28*28)
             num_classes = 1  # MNIST total classes (0-9 digits)
 
-            # Store layers weight & bias
-            weights = {
-                'h1': tf.Variable(tf.random_normal([num_input, n_hidden_1]), name="h1"),
-                'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2]), name="h2"),
-                'h3': tf.Variable(tf.random_normal([n_hidden_2, n_hidden_3]), name="h3"),
-                'h4': tf.Variable(tf.random_normal([n_hidden_3, n_hidden_4]), name="h4"),
-                'out': tf.Variable(tf.random_normal([n_hidden_4, num_classes]), name="hout")
-            }
-            biases = {
-                'b1': tf.Variable(tf.random_normal([n_hidden_1]), name="b1"),
-                'b2': tf.Variable(tf.random_normal([n_hidden_2]), name="b2"),
-                'b3': tf.Variable(tf.random_normal([n_hidden_3]), name="b3"),
-                'b4': tf.Variable(tf.random_normal([n_hidden_4]), name="b5"),
-                'out': tf.Variable(tf.random_normal([num_classes]), name="bout")
-            }
-
-            layer_1 = tf.add(tf.matmul(self.samples_placeholder, weights['h1']), biases['b1'])
-            layer_1 = tf.nn.relu(layer_1)
-
-            layer_2 = tf.add(tf.matmul(layer_1, weights['h2']), biases['b2'])
-            layer_2 = tf.nn.relu(layer_2)
-
-            layer_3 = tf.add(tf.matmul(layer_2, weights['h3']), biases['b3'])
-            layer_3 = tf.nn.relu(layer_3)
-
-            layer_4 = tf.add(tf.matmul(layer_3, weights['h4']), biases['b4'])
-            layer_4 = tf.nn.relu(layer_4)
-
-            out_layer = tf.matmul(layer_4, weights['out']) + biases['out']
+            layer1 = tf.layers.dense(inputs=self.samples_placeholder, units=n_hidden_1, activation=tf.nn.relu)
+            layer2 = tf.layers.dense(inputs=layer1, units=n_hidden_2, activation=tf.nn.relu)
+            layer3 = tf.layers.dense(inputs=layer2, units=n_hidden_3, activation=tf.nn.relu)
+            layer4 = tf.layers.dense(inputs=layer3, units=n_hidden_4, activation=tf.nn.relu)
+            out_layer = tf.layers.dense(inputs=layer4, units=num_classes)
 
             # Construct model
             logits = out_layer
