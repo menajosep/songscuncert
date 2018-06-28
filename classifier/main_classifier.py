@@ -22,10 +22,11 @@ d = classifier_data(args.samples, args.in_file, args.target_emb_file, args.conte
 pickle.dump(d, open(dir_name + "/classifier_data.dat", "wb+"), protocol=4)
 
 # MODEL
+#logger.debug('load data set from disk')
 #d = pickle.load(open("class_fits/classifier_data.dat", "rb+"))
 d.batch = d.batch_generator(args.mb)
 
-
+logger.debug('init training')
 # Start training
 with tf.Session() as sess:
     m = classifier_model(sess, d, dir_name)
