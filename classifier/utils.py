@@ -39,7 +39,7 @@ def process_play_list_constructor(target_embeddings_file, context_embeddings_fil
                     average = np.zeros(len(context_embeddings.wv.vectors[0]))
                     seeds = None
                     # get those seeds that have a valid embedding
-                    for song in songs and count < 3:
+                    for song in songs:
                         if song in context_embeddings.wv.vocab and song != songs[target_index]:
                             if count < 3:
                                 if seeds is None:
