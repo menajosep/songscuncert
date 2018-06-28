@@ -15,7 +15,8 @@ class classifier_model():
             # Network Parameters
             n_hidden_1 = 500  # 1st layer number of neurons
             n_hidden_2 = 500  # 2nd layer number of neurons
-            n_hidden_3 = 64  # 3rd layer number of neurons
+            n_hidden_3 = 300  # 3rd layer number of neurons
+            n_hidden_4 = 64  # 3rd layer number of neurons
             num_input = 700  # MNIST data input (img shape: 28*28)
             num_classes = 1  # MNIST total classes (0-9 digits)
 
@@ -24,26 +25,30 @@ class classifier_model():
                 'h1': tf.Variable(tf.random_normal([num_input, n_hidden_1]), name="h1"),
                 'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2]), name="h2"),
                 'h3': tf.Variable(tf.random_normal([n_hidden_2, n_hidden_3]), name="h3"),
-                'out': tf.Variable(tf.random_normal([n_hidden_3, num_classes]), name="hout")
+                'h4': tf.Variable(tf.random_normal([n_hidden_3, n_hidden_4]), name="h4"),
+                'out': tf.Variable(tf.random_normal([n_hidden_4, num_classes]), name="hout")
             }
             biases = {
                 'b1': tf.Variable(tf.random_normal([n_hidden_1]), name="b1"),
                 'b2': tf.Variable(tf.random_normal([n_hidden_2]), name="b2"),
                 'b3': tf.Variable(tf.random_normal([n_hidden_3]), name="b3"),
+                'b4': tf.Variable(tf.random_normal([n_hidden_4]), name="b5"),
                 'out': tf.Variable(tf.random_normal([num_classes]), name="bout")
             }
 
-            # Hidden fully connected layer with 256 neurons
             layer_1 = tf.add(tf.matmul(self.samples_placeholder, weights['h1']), biases['b1'])
             layer_1 = tf.nn.relu(layer_1)
-            # Hidden fully connected layer with 256 neurons
+
             layer_2 = tf.add(tf.matmul(layer_1, weights['h2']), biases['b2'])
             layer_2 = tf.nn.relu(layer_2)
-            # Hidden fully connected layer with 64 neurons
+
             layer_3 = tf.add(tf.matmul(layer_2, weights['h3']), biases['b3'])
             layer_3 = tf.nn.relu(layer_3)
-            # Output fully connected layer with a neuron for each class
-            out_layer = tf.matmul(layer_3, weights['out']) + biases['out']
+
+            layer_4 = tf.add(tf.matmul(layer_3, weights['h4']), biases['b4'])
+            layer_4 = tf.nn.relu(layer_4)
+
+            out_layer = tf.matmul(layer_4, weights['out']) + biases['out']
 
             # Construct model
             logits = out_layer
