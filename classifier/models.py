@@ -14,9 +14,9 @@ class classifier_model():
                 self.labels_placeholder = tf.placeholder(tf.float32)
 
             # Network Parameters
-            n_hidden_1 = 1000  # 1st layer number of neurons
-            n_hidden_2 = 1000  # 2nd layer number of neurons
-            n_hidden_3 = 300  # 3rd layer number of neurons
+            n_hidden_1 = 512  # 1st layer number of neurons
+            n_hidden_2 = 256  # 2nd layer number of neurons
+            n_hidden_3 = 128  # 3rd layer number of neurons
             n_hidden_4 = 64  # 3rd layer number of neurons
             num_classes = 1  # MNIST total classes (0-9 digits)
 
@@ -30,7 +30,7 @@ class classifier_model():
             logits = out_layer
 
             # Define loss and optimizer
-            learning_rate = 0.01
+            learning_rate = 1e-6
             self.loss_op = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
                 logits=logits, labels=self.labels_placeholder))
             optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)

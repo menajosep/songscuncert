@@ -9,6 +9,8 @@ from gensim.models import Word2Vec
 from more_itertools import chunked
 from pathos.multiprocessing import Pool, cpu_count
 
+NUMBER_OF_SEEDS = 10
+
 
 def read_data(filename):
     """Extract the first file enclosed in a zip file as a list of words"""
@@ -41,7 +43,7 @@ def process_play_list_constructor(target_embeddings_file, context_embeddings_fil
                     # get those seeds that have a valid embedding
                     for song in songs:
                         if song in context_embeddings.wv.vocab and song != songs[target_index]:
-                            if count < 3:
+                            if count < NUMBER_OF_SEEDS:
                                 if seeds is None:
                                     seeds = context_embeddings.wv.vectors[int(song)]
                                 else:
@@ -49,7 +51,7 @@ def process_play_list_constructor(target_embeddings_file, context_embeddings_fil
                             average = np.add(average, context_embeddings.wv.vectors[int(song)])
                             count += 1
                     # if there valid seeds to calculate the average
-                    if count > 0:
+                    if count >= NUMBER_OF_SEEDS:
                         # get the embedding for the playlist
                         playlist_embedding = target_embeddings.wv.vectors[int(playlist)]
                         # get the centroid as the average of the embeddings of the valid seeds
