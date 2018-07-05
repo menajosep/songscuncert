@@ -21,8 +21,10 @@ os.makedirs(dir_name)
 logger.debug('load data set from disk')
 d = pickle.load(open(args.in_file, "rb+"))
 samples = np.array(d['samples'])
+playlists = np.array(d['playlists'])
+seeds = np.array(d['seeds'])
 labels = np.array(d['labels'])
-batch = batch_generator(args.mb, samples, labels)
+batch = batch_generator(args.mb, samples, playlists, seeds, labels)
 
 logger.debug('init training')
 # Start training
@@ -42,7 +44,8 @@ with tf.Session() as sess:
 
     for step in range(1, num_steps+1):
         # Run optimization op (backprop)
-        feed_dict = feed(batch, m.samples_placeholder, m.labels_placeholder)
+        feed_dict = feed(batch, m.samples_placeholder, m.playlists_placeholder,
+                         m.seeds_placeholder, m.labels_placeholder)
         sess.run(m.train_op, feed_dict=feed_dict)
         if step % display_step == 0 or step == 1:
             # Calculate batch loss and accuracy
@@ -55,7 +58,8 @@ with tf.Session() as sess:
 
     # Calculate accuracy for MNIST test images
     logger.debug("Testing Accuracy:", \
-        sess.run(m.accuracy, feed_dict=feed(batch, m.samples_placeholder, m.labels_placeholder)))
+        sess.run(m.accuracy, feed_dict=feed(batch, m.samples_placeholder, m.playlists_placeholder,
+                         m.seeds_placeholder, m.labels_placeholder)))
     # Save the variables to disk.
     save_path = m.saver.save(sess, dir_name + "/model.ckpt")
     logger.debug("Model saved in path: %s" % save_path)

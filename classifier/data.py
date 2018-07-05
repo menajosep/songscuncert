@@ -32,9 +32,11 @@ class classifier_data():
         self.logger.debug('number of samples '+str(len(self.samples)))
         self.logger.debug('....shuffling samples')
         shuffle(self.samples)
-        playlists, songs, samples, labels = zip(*self.samples)
-        dat = {'playlists': playlists,
+        playlists_ids, songs, playlists, seeds, samples, labels = zip(*self.samples)
+        dat = {'playlists_ids': playlists_ids,
                'songs': songs,
+               'playlists': playlists,
+               'seeds': seeds,
                'samples': samples,
                'labels': labels}
         pickle.dump(dat, open(self.dir_name + "/classifier_data_set.dat", "wb+"), protocol=4)

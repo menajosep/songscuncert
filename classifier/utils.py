@@ -34,72 +34,66 @@ def process_play_list_constructor(target_embeddings_file, context_embeddings_fil
                 playlist, songs = zip(play_list_songs)
                 playlist = playlist[0]
                 songs = songs[0]
-                found, target_index = get_valid_target(context_embeddings, songs)
+                found, target_index = get_valid_song(context_embeddings, songs)
                 # if we got a valid target continue
                 if found:
+                    tries = 0
                     count = 0
-                    average = np.zeros(len(context_embeddings.wv.vectors[0]))
                     seeds = None
-                    # get those seeds that have a valid embedding
-                    for song in songs:
-                        if song in context_embeddings.wv.vocab and song != songs[target_index]:
-                            if count < NUMBER_OF_SEEDS:
-                                if seeds is None:
-                                    seeds = context_embeddings.wv.vectors[int(song)]
-                                else:
-                                    seeds = np.hstack((seeds, context_embeddings.wv.vectors[int(song)]))
-                            average = np.add(average, context_embeddings.wv.vectors[int(song)])
+                    while count < NUMBER_OF_SEEDS and tries < 100:
+                        found_seed, seed_index = get_valid_song(context_embeddings, songs, target_index)
+                        if found_seed:
                             count += 1
+                            if seeds is None:
+                                seeds = context_embeddings.wv.vectors[int(seed_index)]
+                                tries = 0
+                            else:
+                                seeds = np.hstack((seeds, context_embeddings.wv.vectors[int(seed_index)]))
+                        else:
+                            tries += 1
                     # if there valid seeds to calculate the average
                     if count >= NUMBER_OF_SEEDS:
                         # get the embedding for the playlist
                         playlist_embedding = target_embeddings.wv.vectors[int(playlist)]
-                        # get the centroid as the average of the embeddings of the valid seeds
-                        average = average / count
-                        # get the top similar songs for the centroid
-                        top = context_embeddings.similar_by_vector(average, topn=1000, restrict_vocab=None)
-                        # get the embedding of the targe
+                        # get the embedding of the target
                         target_embedding = context_embeddings.wv.vectors[int(songs[target_index])]
-                        found_negative, negative_sample_index = get_valid_neg_sample(context_embeddings, songs, top)
+                        found_negative, negative_sample_index = get_valid_neg_sample(context_embeddings, songs)
                         #if we find a valid neg sample proceed to build the samples
                         if found_negative:
+                            # add pos sample together with the corresponding ids
+                            samples.append((playlist, songs[target_index], playlist_embedding,
+                                            seeds, target_embedding, 1))
                             # get the neg sample embedding
-                            negative_sample_embedding = context_embeddings.wv.vectors[int(top[negative_sample_index][0])]
-                            # build the pos sample
-                            target_sample = np.hstack((playlist_embedding, seeds, target_embedding))
-                            # add it together with the corresponding ids
-                            samples.append((playlist, songs[target_index], target_sample, 1))
-                            # build the neg sample
-                            negative_sample_sample = np.hstack((playlist_embedding, seeds, negative_sample_embedding))
-                            # add it together with the corresponding ids
-                            samples.append((playlist, top[negative_sample_index][0], negative_sample_sample, 0))
+                            negative_sample_embedding = \
+                                context_embeddings.wv.vectors[negative_sample_index]
+                            # add the neg sample together with the corresponding ids
+                            samples.append((playlist, str(negative_sample_index), playlist_embedding,
+                                            seeds, negative_sample_embedding, 0))
         except Exception as e:
             logging.getLogger('logging_songscuncert').error('error '+e)
         return samples
 
-
-
-    def get_valid_target(context_embeddings, songs):
+    def get_valid_song(context_embeddings, songs, target_index = None):
         found = False
         count = 0
         # try 10 times to get a random seed that has a valid embedding
         while not found and count < 10:
-            target_index = random.randint(0, len(songs) - 1)
-            if songs[target_index] in context_embeddings.wv.vocab:
-                found = True
+            song_index = random.randint(0, len(songs) - 1)
+            if songs[song_index] in context_embeddings.wv.vocab:
+                if target_index is None or songs[song_index] != target_index:
+                    found = True
             else:
                 count += 1
-        return found, target_index
+        return found, song_index
 
-    def get_valid_neg_sample(context_embeddings, songs, top):
+    def get_valid_neg_sample(context_embeddings, songs):
         found_negative = False
         counter = 0
-        # try 100 times to find a valid neg sample picked randomly from the top similar
-        # songs to the centroid
+        # try 100 times to find a valid neg sample picked randomly
         while not found_negative and counter < 100:
-            negative_sample_index = random.randint(0, len(top) - 1)
-            if top[negative_sample_index][0] in context_embeddings.wv.vocab \
-                    and top[negative_sample_index][0] not in songs:
+            negative_sample_index = random.randint(0, len(context_embeddings.wv.vectors) - 1)
+            if str(negative_sample_index) in context_embeddings.wv.vocab \
+                    and str(negative_sample_index) not in songs:
                 found_negative = True
             else:
                 counter += 1
@@ -156,26 +150,34 @@ def get_logger():
     return logger
 
 
-def batch_generator(n_minibatch, input_samples, input_labels):
+def batch_generator(n_minibatch, input_samples, input_playlists, input_seeds, input_labels):
     batch_size = n_minibatch
     data_samples = input_samples
+    data_playlists = input_playlists
+    data_seeds = input_seeds
     data_labels = input_labels
     while True:
         if data_samples.shape[0] < batch_size:
             data_samples = np.concatenate([data_samples, input_samples])
+            data_playlists = np.concatenate([data_playlists, input_playlists])
+            data_seeds = np.concatenate([data_seeds, input_seeds])
             data_labels = np.concatenate([data_labels, input_labels])
             if data_samples.shape[0] < batch_size:
                 continue
         samples = data_samples[:batch_size]
+        playlists = data_playlists[:batch_size]
+        seeds = data_seeds[:batch_size]
         labels = data_labels[:batch_size]
         data_samples = data_samples[batch_size:]
+        data_playlists = data_playlists[batch_size:]
+        data_seeds = data_seeds[batch_size:]
         data_labels = data_labels[batch_size:]
-        yield samples, labels
+        yield samples, playlists, seeds, labels
 
 
-def feed(batch, samples_placeholder, labels_placeholder, shuffling = False):
-    samples, labels = batch.__next__()
-    if shuffling:
-        labels = np.random.permutation(labels)
+def feed(batch, samples_placeholder, playlists_placeholder, seeds_placeholder, labels_placeholder):
+    samples, playlists, seeds, labels = batch.__next__()
     return {samples_placeholder: samples,
+            playlists_placeholder: playlists,
+            seeds_placeholder: seeds,
             labels_placeholder: labels}

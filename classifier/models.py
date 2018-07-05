@@ -10,34 +10,53 @@ class classifier_model():
         with tf.name_scope('model'):
             # Data Placeholder
             with tf.name_scope('input'):
-                self.samples_placeholder = tf.placeholder(tf.float32, shape=[None, 1300])
+                self.samples_placeholder = tf.placeholder(tf.float32, shape=[None, 300])
+                self.playlists_placeholder = tf.placeholder(tf.float32, shape=[None, 100])
+                self.seeds_placeholder = tf.placeholder(tf.float32, shape=[None, 3000])
                 self.labels_placeholder = tf.placeholder(tf.float32)
 
-            # Network Parameters
-            n_hidden_1 = 512  # 1st layer number of neurons
-            n_hidden_2 = 256  # 2nd layer number of neurons
-            n_hidden_3 = 128  # 3rd layer number of neurons
-            n_hidden_4 = 64  # 3rd layer number of neurons
-            num_classes = 1  # MNIST total classes (0-9 digits)
+            num_classes = 1
 
-            layer1 = tf.layers.dense(inputs=self.samples_placeholder, units=n_hidden_1, activation=tf.nn.relu)
-            layer2 = tf.layers.dense(inputs=layer1, units=n_hidden_2, activation=tf.nn.relu)
-            layer3 = tf.layers.dense(inputs=layer2, units=n_hidden_3, activation=tf.nn.relu)
-            layer4 = tf.layers.dense(inputs=layer3, units=n_hidden_4, activation=tf.nn.relu)
-            out_layer = tf.layers.dense(inputs=layer4, units=num_classes)
+            # layer_seeds = tf.layers.dense(inputs=self.seeds_placeholder, units=2000, activation=tf.nn.relu)
+            # layer_seeds_2 = tf.layers.dense(inputs=layer_seeds, units=1500, activation=tf.nn.relu)
+            # layer_seeds_3 = tf.layers.dense(inputs=layer_seeds_2, units=1000, activation=tf.nn.relu)
+            # layer_seeds_4 = tf.layers.dense(inputs=layer_seeds_3, units=300, activation=tf.nn.relu)
+            # layer_seeds_5 = tf.layers.dense(inputs=layer_seeds_4, units=100, activation=tf.nn.relu)
+            # layer_songs = tf.layers.dense(inputs=self.samples_placeholder, units=300, activation=tf.nn.relu)
+            # layer_songs_2 = tf.layers.dense(inputs=layer_songs, units=300, activation=tf.nn.relu)
+            # layer_songs_3 = tf.layers.dense(inputs=layer_songs_2, units=100, activation=tf.nn.relu)
+            # layer_all = tf.concat([self.playlists_placeholder, layer_songs_3, layer_seeds_5], axis=1)
+            # layer4 = tf.layers.dense(inputs=layer_all, units=64, activation=tf.nn.relu)
+            # out_layer = tf.layers.dense(inputs=layer4, units=num_classes)
+
+            layer_input = tf.concat([self.playlists_placeholder,
+                                     self.samples_placeholder,
+                                     self.seeds_placeholder], axis=1)
+            layer_2 = tf.layers.dense(inputs=layer_input, units=8000, activation=tf.nn.relu)
+            layer_3 = tf.layers.dense(inputs=layer_2, units=8000, activation=tf.nn.relu)
+            layer_4 = tf.layers.dense(inputs=layer_3, units=4000, activation=tf.nn.relu)
+            layer_5 = tf.layers.dense(inputs=layer_4, units=2000, activation=tf.nn.relu)
+            layer_6 = tf.layers.dense(inputs=layer_5, units=512, activation=tf.nn.relu)
+            layer_7 = tf.layers.dense(inputs=layer_6, units=64, activation=tf.nn.relu)
+
+            out_layer = tf.layers.dense(inputs=layer_7, units=num_classes, activation=tf.nn.relu)
+
+
 
             # Construct model
             logits = out_layer
+            predicted = tf.nn.sigmoid(logits)
 
             # Define loss and optimizer
-            learning_rate = 1e-6
-            self.loss_op = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
-                logits=logits, labels=self.labels_placeholder))
-            optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+            learning_rate = 1e-8
+            self.loss_op = tf.reduce_mean(tf.losses.mean_squared_error(self.labels_placeholder, predicted))
+            #self.loss_op = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
+            #    logits=logits, labels=self.labels_placeholder))
+            optimizer = tf.train.RMSPropOptimizer(learning_rate=learning_rate)
             self.train_op = optimizer.minimize(self.loss_op)
 
             # Evaluate model (with test logits, for dropout to be disabled)
-            self.correct_pred = tf.equal(tf.round(logits), self.labels_placeholder)
+            self.correct_pred = tf.equal(tf.round(predicted), self.labels_placeholder)
             self.accuracy = tf.reduce_mean(tf.cast(self.correct_pred, tf.float32))
 
             with self.sess.as_default():
